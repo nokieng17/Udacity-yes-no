@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "expo": "^34.0.1",
+    "expo-constants": "^6.0.0",
     "react": "16.8.3",
     "react-dom": "^16.8.6",
     "react-native": "https://github.com/expo/react-native/archive/sdk-34.0.0.tar.gz",
@@ -18,7 +19,9 @@
   },
   "devDependencies": {
     "@types/react": "^16.8.24",
+    "@types/react-native": "^0.60.2",
     "babel-preset-expo": "^6.0.0",
+    "react-native-typescript-transformer": "^1.2.13",
     "tslint": "^5.18.0",
     "tslint-react": "^4.0.0",
     "typescript": "^3.5.3"

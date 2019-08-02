@@ -1,19 +1,31 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import Constants from 'expo-constants'
+import { StyleSheet, Text, View, StatusBar } from "react-native";
+import Quiz from "./screens/Quiz";
+import Colors from "./constants/Colors";
+import Deck from "./screens/Deck";
+
+const CustomStatusBar = ({ backgroundColor, ...props }) => {
+  return (
+    <View style={{ backgroundColor, height: Constants.statusBarHeight }}>
+      <StatusBar translucent={true} backgroundColor={backgroundColor} {...props} />
+    </View>
+  )
+}
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <View style={[styles.container, { height: Constants.statusBarHeight }]}>
+      <CustomStatusBar backgroundColor={Colors.primary} />
+      <Quiz title={"quiz"} quizIndicator={"1 / 2"} />
+      {/* <Deck /> */}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
     backgroundColor: "#fff",
     flex: 1,
-    justifyContent: "center",
   },
 });
