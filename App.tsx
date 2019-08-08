@@ -1,9 +1,12 @@
 import React from "react";
 import Constants from 'expo-constants'
-import { StyleSheet, Text, View, StatusBar } from "react-native";
-import Quiz from "./screens/Quiz";
+import { StyleSheet, View, StatusBar } from "react-native";
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
 import Colors from "./constants/Colors";
-import Deck from "./screens/Deck";
+import StackNavs from "./screens/StackNavs";
+import reducers from "./reducers"
+import middleware from "./middleware"
 
 const CustomStatusBar = ({ backgroundColor, ...props }) => {
   return (
@@ -15,11 +18,12 @@ const CustomStatusBar = ({ backgroundColor, ...props }) => {
 
 export default function App() {
   return (
-    <View style={[styles.container, { height: Constants.statusBarHeight }]}>
-      <CustomStatusBar backgroundColor={Colors.primary} />
-      <Quiz title={"quiz"} quizIndicator={"1 / 2"} />
-      {/* <Deck /> */}
-    </View>
+    <Provider store={createStore(reducers, middleware)}>
+      <View style={[styles.container, { height: Constants.statusBarHeight }]}>
+        <CustomStatusBar backgroundColor={Colors.primary} />
+        <StackNavs />
+      </View>
+    </Provider>
   );
 }
 

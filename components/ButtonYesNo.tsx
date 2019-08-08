@@ -6,7 +6,8 @@ import { Platform } from '@unimodules/core';
 interface FormProps {
     buttonText?: string,
     onPress?: (e: GestureResponderEvent) => void,
-    positive: boolean
+    positive: boolean,
+    disabled?: boolean
 }
 
 const ButtonYesNo = (props: FormProps) => {
@@ -15,6 +16,7 @@ const ButtonYesNo = (props: FormProps) => {
         <TouchableOpacity
             style={[Platform.OS === "ios" ? styles.iosButton : styles.mdButton, { backgroundColor: props.positive ? Colors.primary : Colors.secondary }]}
             onPress={props.onPress}
+            disabled={props.disabled}
         >
             <Text style={styles.text}>{props.buttonText}</Text>
         </TouchableOpacity>
