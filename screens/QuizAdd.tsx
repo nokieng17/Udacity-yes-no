@@ -19,9 +19,14 @@ interface FormProps {
 
 class QuizAdd extends React.Component<FormProps> {
 
+    static navigationOptions = ({ navigation }) => {
+        const { id = null } = navigation.state.params
+        return { title: "Add Quiz" }
+    }
     state = {
         title: "",
-        answer: true
+        answer: true,
+        answerText: ""
     }
 
     toggleAnswer = () => {
@@ -29,10 +34,10 @@ class QuizAdd extends React.Component<FormProps> {
     }
 
     submitQuizToDeck = () => {
-        const { title, answer } = this.state
+        const { title, answer, answerText } = this.state
         const { deckId, addQuizToDeck } = this.props;
 
-        addQuizToDeck(deckId, { question: title, answer })
+        addQuizToDeck(deckId, { question: title, answer, answerText })
 
         //update db
 
@@ -42,7 +47,7 @@ class QuizAdd extends React.Component<FormProps> {
     }
 
     render() {
-        const { answer, title } = this.state
+        const { answer, title, answerText } = this.state
         const { deckId } = this.props
         if (null == deckId) {
             return (
@@ -54,7 +59,10 @@ class QuizAdd extends React.Component<FormProps> {
         return (
             <View style={styles.container}>
                 <View style={{ alignSelf: "stretch" }}>
-                    <TextInput placeholder="Card Title" style={styles.input} value={title} onChangeText={title => this.setState({ title })} />
+                    <TextInput placeholder="Question" style={styles.input} value={title} onChangeText={title => this.setState({ title })} />
+                </View>
+                <View style={{ alignSelf: "stretch", marginTop: 10, }}>
+                    <TextInput placeholder="Answer" style={styles.input} value={answerText} onChangeText={answerText => this.setState({ answerText })} />
                 </View>
                 <View style={{ marginTop: 50 }}>
                     <Text style={{ color: Colors.primary, fontSize: 15, marginBottom: 5 }}>Answer</Text>

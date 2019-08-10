@@ -8,6 +8,7 @@ import StackNavs from "./screens/StackNavs";
 import reducers from "./reducers"
 import middleware from "./middleware"
 
+
 const CustomStatusBar = ({ backgroundColor, ...props }) => {
   return (
     <View style={{ backgroundColor, height: Constants.statusBarHeight }}>

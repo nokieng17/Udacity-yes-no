@@ -14,7 +14,10 @@ const ButtonYesNo = (props: FormProps) => {
 
     return (
         <TouchableOpacity
-            style={[Platform.OS === "ios" ? styles.iosButton : styles.mdButton, { backgroundColor: props.positive ? Colors.primary : Colors.secondary }]}
+            style={[
+                Platform.OS === "ios" ? styles.iosButton : styles.mdButton,
+                { backgroundColor: props.disabled ? Colors.primaryLight : props.positive ? Colors.primary : Colors.secondary },
+            ]}
             onPress={props.onPress}
             disabled={props.disabled}
         >

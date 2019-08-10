@@ -5,7 +5,7 @@ import ButtonTextOutline from "../components/ButtonTextOutline";
 import ButtonYesNo from "../components/ButtonYesNo";
 import ButtonText from "../components/ButtonText";
 import Colors from "../constants/Colors";
-import { IDeckItem, handleRemoveDeck } from "../actions/decks";
+import { IDeckItem, handleRemoveDeck, IQuiz } from "../actions/decks";
 import { NavigationActions } from "react-navigation";
 
 interface FormProps {
@@ -19,6 +19,11 @@ interface FormProps {
 
 // component should update
 class Deck extends React.Component<FormProps> {
+
+    static navigationOptions = ({ navigation }) => {
+        const { title } = navigation.state.params
+        return { title: title }
+    }
 
     shouldComponentUpdate(nextProps: any) {
         const { deck } = this.props;
@@ -42,7 +47,6 @@ class Deck extends React.Component<FormProps> {
         // this.props.navigation.goBack();
         this.props.goBack();
     }
-
     render() {
         const { deck } = this.props;
         if (!deck) {
@@ -61,7 +65,7 @@ class Deck extends React.Component<FormProps> {
                 </View>
                 <View style={[styles.center, { flex: 1 }]}>
                     <ButtonTextOutline children={"Add card"} onPress={() => this.goAddCard(key)} />
-                    <ButtonYesNo buttonText={"Start Quiz"} positive={true} onPress={() => this.goStartQuiz(key)} />
+                    <ButtonYesNo buttonText={"Start Quiz"} disabled={questions.length === 0} positive={true} onPress={() => this.goStartQuiz(key)} />
                 </View>
                 <View style={[styles.center, { flex: 1 }]}>
                     <ButtonText children={"Delete this deck!"} color={Colors.secondary} onPress={() => this.removeDeck(deck)} />

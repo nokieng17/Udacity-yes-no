@@ -6,7 +6,7 @@ import Colors from '../constants/Colors';
 interface FormProps {
     buttonText?: string,
     onPress?: (e: GestureResponderEvent) => void,
-    children: string
+    children?: string
 }
 const ButtonTextOutline = (props: FormProps) => {
     return (
@@ -18,7 +18,6 @@ const ButtonTextOutline = (props: FormProps) => {
 
 const styles = StyleSheet.create({
     button: {
-
         width: 250,
         padding: 10,
         borderRadius: 7,

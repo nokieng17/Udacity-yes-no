@@ -1,81 +1,102 @@
 import React from 'react'
-import { View, StyleSheet, Animated } from 'react-native'
+import { connect } from "react-redux"
+import { View, Text, StyleSheet } from 'react-native'
 import QuizSelect from '../components/QuizSelect';
 import QuizFlipped from '../components/QuizFlipped';
+import { handleRestDeck, IDeckItem, IQuiz } from '../actions/decks';
+import CardFlip from "react-native-card-flip"
+import Colors from '../constants/Colors';
+import DeckResult from "./DeckResult"
+import { NavigationActions } from 'react-navigation';
 
 interface FormProps {
     title: string,
-    quizIndicator: string
-}
-
-interface State {
-    flipValue: any
+    quizIndicator: string,
+    deck: IDeckItem,
+    // foo: () => void,
+    goBack: () => void
 }
 
 class Quiz extends React.Component<FormProps> {
 
-    state: State = {
-        flipValue: new Animated.Value(0),
+    state = {
+        currentQuiz: 0,
+        correctAnswers: 0,
+        flipped: false,
     }
 
-    componentDidMount() {
+
+    card = null
+
+    handleNextQuiz = () => {
+        const { flipped } = this.state
+        if (flipped) {
+            this.handleReverseCard()
+        }
+        this.setState((prev: { currentQuiz }) => ({ currentQuiz: prev.currentQuiz + 1 }))
     }
 
-    flipCard = () => {
-        const { flipValue } = this.state
-        Animated.sequence([
-            Animated.spring(flipValue, { toValue: 180, velocity: 8, friction: 10 })
-        ]).start()
+    handleFlipCard = () => {
+        this.setState({ flipped: true })
+        this.card.flip()
+    }
+
+    handleReverseCard = () => {
+        this.setState({ flipped: false })
+        this.card.flip()
+    }
+
+    handleAnswer = (answer: boolean, quiz: IQuiz) => {
+        if (answer === quiz.answer) {
+            const { correctAnswers } = this.state
+            this.setState({ correctAnswers: correctAnswers + 1 })
+        }
+        this.handleNextQuiz()
+    }
+
+    handleReset = () => {
+        this.setState({ correctAnswers: 0, flipped: false, currentQuiz: 0 })
+        // this.props.foo()
     }
 
     render() {
-        const flipValue = this.state.flipValue;
-        let flipValueFont = flipValue.interpolate({
-            inputRange: [0, 180],
-            outputRange: ['0deg', '180deg'],
-        })
-        let flipValueBack = flipValue.interpolate({
-            inputRange: [0, 180],
-            outputRange: ['180deg', '360deg'],
-        })
-        const frontAnimatedStyle = {
-            transform: [
-                { rotateY: flipValueFont }
-            ],
-            backfaceVisibility: "hidden",
+        const { currentQuiz } = this.state
+        const { deck } = this.props
+        const { questions = [] } = deck
+        if (currentQuiz >= questions.length) {
+            //finished
+            const { correctAnswers } = this.state
+            return (
+                <DeckResult
+                    title={deck.title}
+                    correct={correctAnswers}
+                    total={questions.length}
+                    onRestart={() => this.handleReset()}
+                    goBack={() => this.props.goBack()}
+                />
+            )
         }
-        const backAnimatedStyle = {
-            transform: [
-                { rotateY: flipValueBack }
-            ],
-            backfaceVisibility: "hidden",
-        }
+        const quiz = questions[currentQuiz]
         return (
             <View style={styles.container}>
-                <Animated.View style={[frontAnimatedStyle]}>
-                    <QuizSelect
-                        title={"Title"}
-                        quizIndicator={"2/3"}
-                        onFlip={this.flipCard}
-                        style={[{
-                            flex: 1,
-                            backfaceVisibility: 'hidden'
-                        }]}
+                <CardFlip style={styles.cardContainer} ref={(card) => this.card = card} >
+                    <QuizSelect style={[styles.card, styles.card1]}
+                        quiz={quiz}
+                        currentQuiz={currentQuiz}
+                        totalQuiz={questions.length}
+                        onAnswer={(answer) => this.handleAnswer(answer, quiz)}
+                        onFlip={() => this.handleFlipCard()}
                     />
-                </Animated.View >
-                {/* margin-top auto make the trick */}
-                <Animated.View style={[backAnimatedStyle, { marginTop: "auto", }]}>
                     <QuizFlipped
-                        title={"Title"}
-                        quizIndicator={"2/3"}
-                        onNextQuiz={this.flipCard}
-                        style={[{
-                            flex: 1,
-                            backfaceVisibility: 'hidden'
-                        }]} isCorrect={false}
+                        quiz={quiz}
+                        currentQuiz={currentQuiz}
+                        totalQuiz={questions.length}
+                        onNextQuiz={() => this.handleNextQuiz()}
+                        style={[styles.card, styles.card2]}
                     />
-                </Animated.View>
-            </View >
+                </CardFlip>
+            </View>
+
         )
     }
 }
@@ -83,10 +104,63 @@ class Quiz extends React.Component<FormProps> {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 10,
+        padding: 20,
         alignItems: "center",
         justifyContent: "center",
-    }
-})
+        // borderColor: "red",
+        // borderWidth: 1,
+        // backgroundColor: '#F5FCFF',
+    },
+    center: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'stretch',
+    },
+    cardContainer: {
+        flex: 1,
+        alignSelf: 'stretch',
+    },
+    card: {
+        flex: 1,
+        borderRadius: 5,
+        shadowColor: 'rgba(0,0,0,0.5)',
+        shadowOffset: {
+            width: 0,
+            height: 1
+        },
+        shadowOpacity: 0.5,
+    },
+    card1: {
+        backgroundColor: 'white',
+    },
+    card2: {
+        backgroundColor: Colors.secondaryLight,
+    },
+});
 
-export default Quiz;
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+const mapStateToProps = ({ decks }, { navigation }) => {
+    const { id } = navigation.state.params
+    return {
+        deck: {
+            ...decks[id], questions: [...shuffle(decks[id].questions)]
+        }
+    }
+}
+
+const mapDispatchToProps = (dispatch, { navigation }) => {
+    return {
+        resetDeck: (key: string) => dispatch(handleRestDeck(key)),
+        // foo: () => dispatch((dispatch) => { dispatch(() => { type: "FOO" }) }),
+        goBack: () => navigation.dispatch(NavigationActions.back())
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Quiz);
